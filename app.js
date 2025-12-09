@@ -17,6 +17,24 @@ const dbConfig = {
   database: 'sticky_notes_db',
 };
 
+const db = mysql.createConnection(dbConfig);
+
+db.connect((err) => {
+  if (err) throw err;
+  console.log('connected to the database!');
+});
+
+app.get('/', (req, res) => {
+  const sql = 'SELECT * FROM notes';
+  db.query(sql, (err, results) => {
+    if (err) {
+      res.status(500).send('Database Error');
+      return;
+    }
+    res.render('index', {notes: results});
+  });
+});
+
 app.listen(port, () => {
   console.log(`server is listening on port: ${port}`);
 });

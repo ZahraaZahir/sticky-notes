@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background: #333;
+        color: white;
+        font-family: sans-serif;
+      }
+      .container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 20px;
+      }
+      .note {
+        background: #f7e98e; /* Sticky Note Yellow */
+        width: 200px;
+        height: 200px;
+        padding: 10px;
+        color: black;
+      }
+      textarea {
+        width: 100%;
+        height: 90%;
+        background: transparent;
+        border: none;
+        resize: none;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>My Sticky Notes</h1>
+    <div class="container">
+      <% notes.forEach(function(note) { %>
+      <div class="note">
+        <textarea onblur="saveNote('<%= note.id %>', this.value)">
+<%= note.content %></textarea
+        >
+        <small id="status-<%= note.id %>">Saved</small>
+      </div>
+      <% }); %>
+    </div>
+
+    <script>
+      function saveNote(id, text) {
+        console.log('Saving note ' + id + ': ' + text);
+      }
+    </script>
+  </body>
+</html>
