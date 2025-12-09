@@ -35,6 +35,20 @@ app.get('/', (req, res) => {
   });
 });
 
+app.put('/api/notes/:id', (req, res) => {
+  const noteId = req.params.id;
+  const noteContent = req.body.content;
+
+  const sql = 'UPDATE notes SET content = ? WHERE id = ?';
+  db.query(sql, [noteContent, noteId], (err, results) => {
+    if (err) {
+      res.status(500).send('Database Error');
+      return;
+    }
+    res.status(200).json({message: 'Success'});
+  });
+});
+
 app.listen(port, () => {
   console.log(`server is listening on port: ${port}`);
 });

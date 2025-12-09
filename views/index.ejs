@@ -45,7 +45,30 @@
 
     <script>
       function saveNote(id, text) {
-        console.log('Saving note ' + id + ': ' + text);
+        const statusSpan = document.getElementById('status-' + id);
+        statusSpan.innerText = 'Saving...';
+
+        fetch('/api/notes/' + id, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({content: text}),
+        })
+          .then((response) => {
+            if (response.ok) {
+              setTimeout(() => {
+                statusSpan.innerText = 'Saved';
+              }, 500);
+            } else {
+              statusSpan.innerText = 'Error!';
+              console.error('Server returned an error');
+            }
+          })
+          .catch((error) => {
+            console.error('Fetch error:', error);
+            statusSpan.innerText = 'Connection Failed';
+          });
       }
     </script>
   </body>
