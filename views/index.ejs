@@ -1,44 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sticky Notes Board</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
-        background: #333;
-        color: white;
-        font-family: sans-serif;
+        background-color: #f5f5f5;
+        background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+        background-size: 20px 20px;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 40px;
+        color: #333;
       }
+
+      h1 {
+        text-align: center;
+        font-weight: 600;
+        color: #1e1e1e;
+        margin-bottom: 40px;
+      }
+
       .container {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
       }
+
       .note {
-        background: #f7e98e; /* Sticky Note Yellow */
-        width: 200px;
-        height: 200px;
-        padding: 10px;
-        color: black;
+        background-color: #fff9b1;
+        width: 100%;
+        height: 240px;
+        border-radius: 8px;
+        padding: 24px;
+        box-sizing: border-box;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05),
+          0px 1px 2px rgba(0, 0, 0, 0.1);
+
+        position: relative;
+        transition: all 0.2s ease-in-out;
       }
+
+      .note:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.1),
+          0px 4px 8px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+      }
+
       textarea {
         width: 100%;
         height: 90%;
         background: transparent;
         border: none;
         resize: none;
-        font-size: 16px;
+        outline: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        line-height: 1.5;
+        color: #2c2c2c;
+      }
+
+      textarea::placeholder {
+        color: rgba(0, 0, 0, 0.3);
+      }
+
+      .status {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.4);
+        font-weight: 500;
+        position: absolute;
+        bottom: 16px;
+        right: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .status.visible {
+        opacity: 1;
       }
     </style>
   </head>
   <body>
-    <h1>My Sticky Notes</h1>
+    <h1>Sticky Notes</h1>
+
     <div class="container">
       <% notes.forEach(function(note) { %>
       <div class="note">
-        <textarea onblur="saveNote('<%= note.id %>', this.value)">
+        <textarea
+          placeholder="Type something..."
+          onblur="saveNote('<%= note.id %>', this.value)"
+        >
 <%= note.content %></textarea
         >
-        <small id="status-<%= note.id %>">Saved</small>
+
+        <span class="status" id="status-<%= note.id %>">Saved</span>
       </div>
       <% }); %>
     </div>
@@ -46,7 +109,9 @@
     <script>
       function saveNote(id, text) {
         const statusSpan = document.getElementById('status-' + id);
+
         statusSpan.innerText = 'Saving...';
+        statusSpan.classList.add('visible');
 
         fetch('/api/notes/' + id, {
           method: 'PUT',
@@ -57,17 +122,18 @@
         })
           .then((response) => {
             if (response.ok) {
+              statusSpan.innerText = 'Saved';
+
               setTimeout(() => {
-                statusSpan.innerText = 'Saved';
-              }, 500);
+                statusSpan.classList.remove('visible');
+              }, 2000);
             } else {
               statusSpan.innerText = 'Error!';
-              console.error('Server returned an error');
             }
           })
           .catch((error) => {
-            console.error('Fetch error:', error);
-            statusSpan.innerText = 'Connection Failed';
+            console.error('Error:', error);
+            statusSpan.innerText = 'Offline';
           });
       }
     </script>
