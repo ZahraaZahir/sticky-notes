@@ -86,18 +86,17 @@
       .status.visible {
         opacity: 1;
       }
-      /* Floating Action Button */
       #add-btn {
         position: fixed;
         bottom: 30px;
         left: 50%;
-        transform: translateX(-50%); /* Centers it perfectly */
+        transform: translateX(-50%);
 
-        background-color: #1e1e1e; /* Dark contrast against light bg */
+        background-color: #1e1e1e;
         color: white;
         border: none;
         padding: 14px 28px;
-        border-radius: 50px; /* Pill shape */
+        border-radius: 50px;
 
         font-family: 'Inter', sans-serif;
         font-weight: 600;
@@ -112,6 +111,27 @@
         background-color: #000;
         transform: translateX(-50%) scale(1.05);
       }
+      /* The Delete Button */
+      .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 20;
+      }
+
+      .note:hover .delete-btn {
+        opacity: 1;
+      }
+
+      .delete-btn:hover {
+        transform: scale(1.2);
+      }
     </style>
   </head>
   <body>
@@ -119,7 +139,10 @@
 
     <div class="container">
       <% notes.forEach(function(note) { %>
-      <div class="note">
+      <div class="note" id="note-<%= note.id %>">
+        <button class="delete-btn" onclick="deleteNote('<%= note.id %>')">
+          🗑
+        </button>
         <textarea
           placeholder="Type something..."
           onblur="saveNote('<%= note.id %>', this.value)"
@@ -153,20 +176,7 @@
             addBtn.innerText = 'New Sticky +';
           });
       });
-      function appendNoteToGrid(note) {
-        const noteDiv = document.createElement('div');
-        noteDiv.classList.add('note');
 
-        noteDiv.innerHTML = `
-            <textarea 
-                placeholder="Type something..." 
-                onblur="saveNote('${note.id}', this.value)"
-            >${note.content}</textarea>
-            <span class="status" id="status-${note.id}">Saved</span>
-        `;
-
-        container.appendChild(noteDiv);
-      }
       function saveNote(id, text) {
         const statusSpan = document.getElementById('status-' + id);
 
@@ -195,6 +205,42 @@
             console.error('Error:', error);
             statusSpan.innerText = 'Offline';
           });
+      }
+
+      function deleteNote(id) {
+        fetch('/api/notes/' + id, {
+          method: 'DELETE',
+        })
+          .then((response) => {
+            if (response.status === 204) {
+              const noteDiv = document.getElementById('note-' + id);
+              if (noteDiv) {
+                noteDiv.remove();
+              }
+            } else {
+              alert('Failed to delete.');
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+
+      function appendNoteToGrid(note) {
+        const noteDiv = document.createElement('div');
+        noteDiv.classList.add('note');
+        noteDiv.id = 'note-' + note.id;
+
+        noteDiv.innerHTML = `
+            <button class="delete-btn" onclick="deleteNote('${note.id}')">
+              🗑
+            </button>
+            <textarea
+                placeholder="Type something..."
+                onblur="saveNote('${note.id}', this.value)"
+            >${note.content}</textarea>
+            <span class="status" id="status-${note.id}">Saved</span>
+        `;
+
+        container.appendChild(noteDiv);
       }
     </script>
   </body>

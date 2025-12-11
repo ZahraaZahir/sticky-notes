@@ -65,6 +65,21 @@ app.post('/api/notes', (req, res) => {
   });
 });
 
+app.delete('/api/notes/:id', (req, res) => {
+  const noteid = req.params.id;
+
+  const sql = 'DELETE FROM notes WHERE id = ?';
+
+  db.query(sql, [noteid], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Database Error');
+      return;
+    }
+    res.status(204).send();
+  });
+});
+
 app.listen(port, () => {
   console.log(`server is listening on port: ${port}`);
 });
