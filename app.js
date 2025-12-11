@@ -49,6 +49,22 @@ app.put('/api/notes/:id', (req, res) => {
   });
 });
 
+app.post('/api/notes', (req, res) => {
+  const noteContent = req.body.content || 'New Note';
+
+  const sql = 'INSERT INTO notes (content) VALUES (?)';
+
+  db.query(sql, [noteContent], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Database Error');
+      return;
+    }
+    const newId = results.insertId;
+    res.status(201).json({id: newId, content: noteContent});
+  });
+});
+
 app.listen(port, () => {
   console.log(`server is listening on port: ${port}`);
 });
